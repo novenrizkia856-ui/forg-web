@@ -233,6 +233,57 @@ footer .forg-brand .forg-logo-name { font-size: 22px; }
 
 .forg-ticker-track { display: flex; will-change: transform; }
 
+/* ------------------------------------------------ infrastructure orbit
+
+   The reference uses three independently rotating image layers. The saved
+   export kept their resting angles but not the Framer motion runtime. */
+
+#infrastructure .framer-1xgzjzp,
+#infrastructure .framer-1htsc8w,
+#infrastructure .framer-blsvyy {
+  transform-origin: 50% 50%;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-play-state: paused;
+  will-change: transform;
+}
+
+#infrastructure .framer-1xgzjzp {
+  animation-name: forgOrbitOuter;
+  animation-duration: 34s;
+}
+
+#infrastructure .framer-1htsc8w {
+  animation-name: forgOrbitMiddle;
+  animation-duration: 46s;
+}
+
+#infrastructure .framer-blsvyy {
+  animation-name: forgOrbitInner;
+  animation-duration: 39s;
+}
+
+#infrastructure.forg-orbit-active .framer-1xgzjzp,
+#infrastructure.forg-orbit-active .framer-1htsc8w,
+#infrastructure.forg-orbit-active .framer-blsvyy {
+  animation-play-state: running;
+}
+
+@keyframes forgOrbitOuter {
+  from { transform: rotate(62.028deg); }
+  to { transform: rotate(422.028deg); }
+}
+
+@keyframes forgOrbitMiddle {
+  from { transform: rotate(41.85deg); }
+  to { transform: rotate(401.85deg); }
+}
+
+@keyframes forgOrbitInner {
+  from { transform: rotate(-41.85deg); }
+  to { transform: rotate(-401.85deg); }
+}
+
 /* ------------------------------------------------------------------ mobile
 
    The export only carries its desktop navigation and footer, so below the
@@ -279,4 +330,9 @@ footer .forg-brand .forg-logo-name { font-size: 22px; }
     animation: none !important;
   }
   [data-forg-anim="rise"] { transform: translateX(-50%) !important; }
+  #infrastructure .framer-1xgzjzp,
+  #infrastructure .framer-1htsc8w,
+  #infrastructure .framer-blsvyy {
+    animation: none !important;
+  }
 }

@@ -7,7 +7,7 @@
  */
 import { getContractState, getLinkTargets } from "./lib/contract-state.js";
 import { runReads } from "./lib/forg-chain.js";
-import { startReveals, startTickers } from "./lib/reveal.js";
+import { startInfrastructureOrbit, startReveals, startTickers } from "./lib/reveal.js";
 import { canConnect, createWalletController, shortenAddress } from "./lib/wallet.js";
 
 const config = window.CONTRACT_CONFIG || {};
@@ -208,3 +208,4 @@ wireDappLaunchers();
 fillLiveReads();
 startReveals();
 startTickers();
+startInfrastructureOrbit();
