@@ -7,11 +7,21 @@
  */
 import { getContractState, getLinkTargets } from "./lib/contract-state.js";
 import { runReads } from "./lib/forg-chain.js";
+import { createPanel } from "./lib/panel.js";
+import { getRegistryTargets } from "./lib/registry.js";
 import { startInfrastructureOrbit, startReveals, startTickers } from "./lib/reveal.js";
 import { canConnect, createWalletController, shortenAddress } from "./lib/wallet.js";
 
 const config = window.CONTRACT_CONFIG || {};
 const wallet = canConnect(config) ? createWalletController(config) : null;
+
+/**
+ * Whether Launch dapp has somewhere to go.
+ *
+ * The panel reads public view functions, so a contract and an endpoint are
+ * enough on their own: no wallet required, and no wallet asked for.
+ */
+const canOpenPanel = getRegistryTargets(config).readable || Boolean(wallet);
 
 function fillContractBar() {
   const bar = document.querySelector("[data-forg-contract-bar]");
@@ -110,7 +120,7 @@ function wireLinks() {
   document.querySelectorAll("[data-forg-link]").forEach((link) => {
     const key = link.dataset.forgLink;
     const href = targets[key];
-    if (key === "dapp" && !href && wallet) return;
+    if (key === "dapp" && !href && canOpenPanel) return;
     if (!href) {
       /* the export sets opacity inline on these anchors, so dim them the
          same way rather than from the stylesheet */
@@ -132,25 +142,24 @@ function wireLinks() {
   });
 }
 
-function setDappLabel(link, label) {
-  const labels = link.querySelectorAll("p");
-  if (labels.length) labels.forEach((node) => { node.textContent = label; });
-  else link.textContent = label;
-  link.setAttribute("aria-label", label);
-}
-
 /**
- * Make the dapp impossible to miss.
+ * Make the dapp impossible to miss, and impossible to get lost in.
  *
- * A configured standalone URL opens normally. Until that exists, the landing
- * page itself is the dapp and these launchers open the integrated wallet flow.
+ * A configured standalone URL opens normally. Until that exists, these
+ * launchers open the registry panel, which reads ForgCore over plain RPC.
+ * They do not ask for a wallet first: the panel shows public state, so a
+ * connect prompt in front of it would gate an unlocked door. The label never
+ * changes either, because a button that renames itself to "Dapp connected"
+ * promises a destination the visitor has not actually arrived at.
  */
 function wireDappLaunchers() {
   const launchers = document.querySelectorAll('[data-forg-link="dapp"]');
   if (!launchers.length) return;
 
   const dappUrl = getLinkTargets(config).dapp;
-  if (dappUrl || !wallet) return;
+  if (dappUrl || !canOpenPanel) return;
+
+  const panel = createPanel(config, wallet);
 
   launchers.forEach((link) => {
     link.classList.remove("is-idle");
@@ -161,25 +170,8 @@ function wireDappLaunchers() {
 
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      const state = wallet.getState();
-      if (state.status === "connecting") return;
-      if (state.status !== "connected") return void wallet.connect();
-      if (!wallet.isOnTargetChain()) return void wallet.switchChain();
-      document.querySelector("[data-forg-contract-bar]")?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      panel.open();
     });
-  });
-
-  wallet.subscribe((state) => {
-    const connected = state.status === "connected" && state.address;
-    const wrongChain = connected && !wallet.isOnTargetChain();
-    let label = "Launch dapp";
-    if (state.status === "connecting") label = "Opening dapp";
-    else if (wrongChain) label = "Switch network";
-    else if (connected) label = "Dapp connected";
-    launchers.forEach((link) => setDappLabel(link, label));
   });
 }
 

@@ -21,6 +21,8 @@ authorized issuer executes. FORG never holds user funds.
 | `reference-assets/` | The original artwork, kept only for diffing. Not shipped. |
 | `scripts/rebrand-images.py` | Regenerates `brand-assets/` from `reference-assets/`. Needs Pillow and numpy. |
 | `lib/reveal.js` | Section reveals and the event ticker, rebuilt from the reference motion. |
+| `lib/registry.js` | Reads ForgCore into the shape the panel renders. Pure, so it tests without a chain. |
+| `lib/panel.js` | The panel `Launch dapp` opens. Built at runtime, like the Connect button. |
 
 ## Design
 
@@ -124,8 +126,9 @@ can be wired up by editing that one file, with no rebuild.
 
 The contract address sits in the hero, directly under the sub header.
 
-Leave `links.dapp` empty to use the integrated wallet experience. Add the
-standalone dapp URL later and both Launch dapp buttons will open it automatically.
+Leave `links.dapp` empty to use the built in registry panel, described below. Add
+the standalone dapp URL later and both Launch dapp buttons will open it instead,
+with no other change.
 
 ### 2. Optional: live numbers from the contract
 
@@ -165,12 +168,39 @@ Regenerate it from the contracts repo after a contract change:
 node -e "require('fs').writeFileSync('abi/ForgCore.json',JSON.stringify(require('../forg-contracts/out/ForgCore.sol/ForgCore.json').abi,null,2)+'\n')"
 ```
 
-### 3. Connect a wallet
+### 3. The registry panel
+
+`Launch dapp` opens a panel over the page, built in `lib/panel.js`. It shows what
+ForgCore says about itself right now:
+
+| Row | Source |
+|---|---|
+| Status | `paused()`, plus whether the contract answered at all |
+| ForgCore | `forgCoreAddress`, linked to its explorer page |
+| Assets registered | `assetCount()` |
+| Corporate actions | `eventCount()` |
+
+**It opens without a wallet, on the first click.** Every figure in it is a public
+view call, so requiring a connection first would be a gate in front of an
+unlocked door. The Connect button sits at the bottom of the panel as an offer.
+
+The panel needs `forgCoreAddress` and `rpcUrl`; with neither, the Launch dapp
+buttons stay inert exactly like the other unconfigured links.
+
+`lib/registry.js` separates reading from rendering, so the states can be tested
+without a browser or a chain. It never rejects: a failing call comes back in
+`errors` and that one figure shows as `—` while the rest still render. An empty
+registry and an unreachable one are deliberately described differently, because a
+live contract with nothing filed yet is the expected state today and should not
+look like an outage.
+
+### 4. Connect a wallet
 
 The contract pill carries a Connect button, added from `main.js` so the exported markup
-stays untouched. It prefers an injected wallet (`window.ethereum`) and falls back to the
-WalletConnect v2 QR flow, whose bundle is imported on demand and never costs a visitor
-who does not click it.
+stays untouched, and the registry panel carries a second one. Both drive the same
+controller, so connecting in either place updates the other. It prefers an injected
+wallet (`window.ethereum`) and falls back to the WalletConnect v2 QR flow, whose bundle
+is imported on demand and never costs a visitor who does not click it.
 
 ```js
 walletConnectProjectId: "...",   // public client id from cloud.reown.com
@@ -185,7 +215,7 @@ This is read only, like the rest of the page: `lib/wallet.js` never builds, sign
 sends a transaction. Every write on ForgCore is role gated and performed by FORG
 operators, so there is nothing here for a visitor's wallet to sign.
 
-### 4. Content security policy
+### 5. Content security policy
 
 `index.html` carries its own CSP meta tag. `connect-src` allows `https:` and `wss:`, so a
 public RPC endpoint and the WalletConnect relay both work. A local node over plain http

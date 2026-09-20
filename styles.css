@@ -233,6 +233,250 @@ footer .forg-brand .forg-logo-name { font-size: 22px; }
 
 .forg-ticker-track { display: flex; will-change: transform; }
 
+/* ------------------------------------------------------------------- panel
+
+   What Launch dapp opens. Read only, so it never gates anything behind a
+   wallet; the connect button at the bottom is an offer, not a toll. */
+
+.forg-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* the attribute has to beat the flex above, or a hidden panel still lays out */
+.forg-panel[hidden] { display: none; }
+
+.forg-panel-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 12, 20, 0.44);
+  backdrop-filter: blur(6px);
+}
+
+.forg-panel-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 26px 26px 22px;
+  border: 1px solid var(--forg-line);
+  border-radius: 22px;
+  background: var(--forg-paper);
+  box-shadow: 0 30px 80px rgba(10, 12, 20, 0.28);
+  color: var(--forg-ink);
+  font-family: Inter, Arial, sans-serif;
+  /* `forwards`, never `both`: with a backwards fill the card sits at the
+     keyframe's opacity 0 until the animation gets a start time, so anything
+     that delays that first frame leaves the panel open but invisible. Its own
+     style stays visible, and the animation only adds the motion. */
+  animation: forgPanelIn 240ms var(--forg-ease) forwards;
+}
+
+.forg-panel-card:focus { outline: none; }
+
+@keyframes forgPanelIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.forg-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.forg-panel-eyebrow {
+  margin: 0 0 4px;
+  color: var(--forg-blue);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.forg-panel-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.forg-panel-close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--forg-line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--forg-muted);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.forg-panel-close:hover { border-color: var(--forg-blue); color: var(--forg-blue); }
+
+.forg-panel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.forg-panel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--forg-muted);
+  box-shadow: 0 0 0 4px rgba(108, 110, 108, 0.14);
+}
+
+/* a live-but-empty registry is not a failure, so it keeps the accent colour */
+.forg-panel-dot[data-tone="live"],
+.forg-panel-dot[data-tone="empty"] {
+  background: var(--forg-blue);
+  box-shadow: 0 0 0 4px rgba(0, 0, 255, 0.14);
+}
+
+.forg-panel-dot[data-tone="paused"] {
+  background: #b2500f;
+  box-shadow: 0 0 0 4px rgba(178, 80, 15, 0.16);
+}
+
+.forg-panel-dot[data-tone="down"] {
+  background: #9c1c1c;
+  box-shadow: 0 0 0 4px rgba(156, 28, 28, 0.16);
+}
+
+.forg-panel-status-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.forg-panel-detail {
+  margin: 8px 0 0;
+  color: var(--forg-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.forg-panel-contract {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--forg-line);
+  border-radius: 12px;
+}
+
+.forg-panel-address {
+  color: var(--forg-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a.forg-panel-address:hover { color: var(--forg-blue); }
+
+.forg-panel-stats { margin-top: 10px; }
+
+.forg-panel-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--forg-line);
+}
+
+.forg-panel-stat:last-child { border-bottom: 0; }
+
+.forg-panel-stat-head { display: flex; flex-direction: column; gap: 2px; }
+
+.forg-panel-stat-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.forg-panel-stat-hint {
+  color: var(--forg-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.forg-panel-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.forg-panel-footer {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--forg-line);
+}
+
+.forg-panel-note {
+  margin: 0;
+  color: var(--forg-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.forg-panel-connect {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--forg-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--forg-ink);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.forg-panel-connect:hover:not(:disabled) { border-color: var(--forg-blue); color: var(--forg-blue); }
+.forg-panel-connect:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.forg-panel-connect.is-wrong-chain {
+  border-color: transparent;
+  background: #b2500f;
+  color: #fff;
+}
+
+body.forg-panel-open { overflow: hidden; }
+
+@media (max-width: 767px) {
+  .forg-panel { padding: 14px; align-items: flex-end; }
+  .forg-panel-card { padding: 22px 20px 18px; max-height: calc(100vh - 28px); }
+  .forg-panel-title { font-size: 19px; }
+  .forg-panel-stat-value { font-size: 21px; }
+}
+
 /* ------------------------------------------------ infrastructure orbit
 
    The reference uses three independently rotating image layers. The saved
@@ -335,4 +579,5 @@ footer .forg-brand .forg-logo-name { font-size: 22px; }
   #infrastructure .framer-blsvyy {
     animation: none !important;
   }
+  .forg-panel-card { animation: none !important; }
 }
