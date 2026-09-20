@@ -96,6 +96,7 @@ window.CONTRACT_CONFIG = {
   chainId: 1234,
   rpcUrl: "https://rpc.rhchain.example",
   explorerUrl: "https://explorer.rhchain.example",
+  forgTokenAddress: "",
   forgCoreAddress: "0x...",
   links: { docs: "https://docs.forg.example", x: "https://x.com/forg" },
   reads: [],
@@ -107,7 +108,8 @@ What each field turns on:
 | Field | Effect on the page |
 |---|---|
 | `network` | The chip in the contract pill. Empty shows `Network pending`. |
-| `forgCoreAddress` | The shortened address and the copy button. Empty shows `Coming Soon`. |
+| `forgTokenAddress` | The shortened address and the copy button. Empty shows `Coming Soon`. |
+| `forgCoreAddress` | Target for the `reads` below. Never shown in the contract pill. |
 | `explorerUrl` | Makes the address clickable and enables the footer `Contract` link. |
 | `rpcUrl` | Required before any `reads` entry runs. |
 | `links.docs` | Enables the `Docs` item in the top menu. Empty leaves it dimmed and inert. |

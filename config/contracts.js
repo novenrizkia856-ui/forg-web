@@ -22,8 +22,16 @@ window.CONTRACT_CONFIG = {
   explorerUrl: "https://robinhoodchain.blockscout.com",
 
   /**
+   * FORG token contract. This is what the contract bar shows.
+   *
+   * There is no token yet, so leave it empty: the bar reads "Coming Soon" and
+   * the copy button stays disabled until there is an address to show.
+   */
+  forgTokenAddress: "",
+
+  /**
    * ForgCore: the asset registry, corporate action registry and lifecycle state.
-   * This is the only FORG contract. Its address is what the contract bar shows.
+   * Used by the `reads` entries below. It is never shown in the contract bar.
    */
   forgCoreAddress: "0x8FB36E0EBa99b6D415c5953C192DC75Fd822925e",
 

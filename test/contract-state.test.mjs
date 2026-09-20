@@ -9,8 +9,8 @@ import {
 
 const ADDRESS = "0x1234567890abcdef1234567890abcdef1234abcd";
 
-test("empty core address stays disabled", () => {
-  const state = getContractState({ forgCoreAddress: "", network: "" });
+test("empty token address stays disabled", () => {
+  const state = getContractState({ forgTokenAddress: "", network: "" });
 
   assert.equal(state.hasAddress, false);
   assert.equal(state.displayAddress, "Coming Soon");
@@ -25,8 +25,8 @@ test("a missing config still produces a usable state", () => {
   assert.equal(state.displayAddress, "Coming Soon");
 });
 
-test("deployed core address becomes short and active", () => {
-  const state = getContractState({ forgCoreAddress: ADDRESS, network: "RH Chain" });
+test("deployed token address becomes short and active", () => {
+  const state = getContractState({ forgTokenAddress: ADDRESS, network: "RH Chain" });
 
   assert.equal(state.hasAddress, true);
   assert.equal(state.fullAddress, ADDRESS);
@@ -35,11 +35,11 @@ test("deployed core address becomes short and active", () => {
 });
 
 test("explorer link appears only once both parts are configured", () => {
-  const withoutExplorer = getContractState({ forgCoreAddress: ADDRESS, network: "RH Chain" });
+  const withoutExplorer = getContractState({ forgTokenAddress: ADDRESS, network: "RH Chain" });
   assert.equal(withoutExplorer.explorerUrl, "");
 
   const withExplorer = getContractState({
-    forgCoreAddress: ADDRESS,
+    forgTokenAddress: ADDRESS,
     network: "RH Chain",
     explorerUrl: "https://explorer.example/",
   });
@@ -52,15 +52,25 @@ test("chain reads need both an endpoint and an address", () => {
   assert.equal(canReadChain({ rpcUrl: "https://rpc.example", forgCoreAddress: ADDRESS }), true);
 });
 
-test("a read entry resolves to ForgCore, and to nothing else", () => {
-  const config = { forgCoreAddress: ADDRESS };
+test("a read entry resolves to the contract it names", () => {
+  const config = { forgCoreAddress: ADDRESS, forgTokenAddress: "0xabc" };
 
   assert.equal(resolveContractAddress(config, "forgCore"), ADDRESS);
+  assert.equal(resolveContractAddress(config, "forgToken"), "0xabc");
   assert.equal(resolveContractAddress(config), ADDRESS);
   assert.equal(resolveContractAddress({}, "forgCore"), "");
 
-  // There is no FORG token. A stale entry resolves to "" so the read is skipped.
-  assert.equal(resolveContractAddress(config, "forgToken"), "");
+  // No token deployed: the read is skipped rather than sent to an empty address.
+  assert.equal(resolveContractAddress({ forgCoreAddress: ADDRESS }, "forgToken"), "");
+});
+
+test("the bar shows the token, not ForgCore", () => {
+  // A deployed ForgCore must not light up the contract bar on its own.
+  const coreOnly = getContractState({ forgCoreAddress: ADDRESS, network: "Robinhood Chain" });
+
+  assert.equal(coreOnly.hasAddress, false);
+  assert.equal(coreOnly.displayAddress, "Coming Soon");
+  assert.equal(coreOnly.explorerUrl, "");
 });
 
 test("unconfigured links stay empty so the page can mark them inert", () => {
