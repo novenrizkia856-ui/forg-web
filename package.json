@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run docs && vite",
+    "build": "npm run docs && vite build",
     "preview": "vite preview",
     "audit": "node scripts/audit-copy.mjs",
-    "test": "node --test"
+    "test": "node --test",
+    "docs": "node scripts/build-docs.mjs"
   },
   "devDependencies": {
+    "marked": "^18.0.13",
     "vite": "^7.1.7"
   },
   "dependencies": {

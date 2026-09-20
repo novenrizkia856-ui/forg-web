@@ -17,6 +17,8 @@ authorized issuer executes. FORG never holds user funds.
 | `lib/` | Pure modules: keccak, ABI encode and decode, contract state, JSON RPC reads, wallet. |
 | `public/` | Files copied to the site root: `assets/` (hashed images and fonts), `og.png`. |
 | `abi/ForgCore.json` | The deployed contract ABI, exported from the contracts repo. |
+| `docs/` | The documentation, in markdown. `SUMMARY.md` sets the order and what gets published. |
+| `scripts/build-docs.mjs` | Renders `docs/` into `public/docs`. Runs from `npm run dev` and `npm run build`. |
 | `brand-assets/` | Artwork carrying the FORG mark. Source for the files in `public/assets/`. |
 | `reference-assets/` | The original artwork, kept only for diffing. Not shipped. |
 | `scripts/rebrand-images.py` | Regenerates `brand-assets/` from `reference-assets/`. Needs Pillow and numpy. |
@@ -71,7 +73,23 @@ npm run build
 
 `npm run audit` fails on dashes in visible copy and on any wording left over from the
 template the layout came from. `npm test` covers the contract state machine, keccak
-selectors, ABI decoding, the read path against a stubbed RPC, and the wallet helpers.
+selectors, ABI decoding, the read path against a stubbed RPC, the registry panel states,
+and the wallet helpers.
+
+## Documentation
+
+The docs live in `docs/` as markdown and are served from `/docs` on the same domain.
+`scripts/build-docs.mjs` renders them into `public/docs`, which Vite copies verbatim in
+both dev and build, so one generator covers `npm run dev` and `npm run build` with no
+plugin. `npm run docs` regenerates them on their own.
+
+`docs/SUMMARY.md` is the single source of truth for the order and for which chapters get
+published; a markdown file it does not list is skipped, with a warning. Cross references
+written as `04-system-architecture.md` are rewritten to their `.html` pages, so the same
+files stay correct both on GitHub and rendered.
+
+`public/docs` is generated, so it is gitignored. `marked` is a devDependency and runs only
+in that script: the published docs are plain HTML and ship no JavaScript.
 
 ### Assets
 
@@ -102,8 +120,7 @@ window.CONTRACT_CONFIG = {
   forgCoreAddress: "0x...",
   links: {
     dapp: "",
-    docs: "https://docs.forg.example",
-    x: "https://x.com/forg",
+    docs: "/docs/",
   },
   reads: [],
 };
@@ -119,7 +136,6 @@ What each field turns on:
 | `explorerUrl` | Makes the address clickable and enables the footer `Contract` link. |
 | `rpcUrl` | Required before any `reads` entry runs. |
 | `links.docs` | Enables the `Docs` item in the top menu. Empty leaves it dimmed and inert. |
-| `links.x` | Enables the footer social link, same rule. |
 
 The built site keeps this file unbundled at `dist/config/contracts.js`, so a deployment
 can be wired up by editing that one file, with no rebuild.

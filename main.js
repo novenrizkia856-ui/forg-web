@@ -132,8 +132,18 @@ function wireLinks() {
       return;
     }
     link.href = href;
-    link.target = "_blank";
-    link.rel = "noopener";
+
+    /* Only an outbound link earns a tab of its own. The docs now live on this
+       same site, and sending a visitor to a new tab for an internal page loses
+       them their back button. */
+    if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
+      link.target = "_blank";
+      link.rel = "noopener";
+    } else {
+      link.removeAttribute("target");
+      link.removeAttribute("rel");
+    }
+
     link.classList.remove("is-idle");
     link.style.removeProperty("opacity");
     link.style.removeProperty("pointer-events");

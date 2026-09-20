@@ -1,0 +1,298 @@
+/*
+ * FORG docs.
+ *
+ * Same palette as the landing page (white paper, #171717 ink, Base blue
+ * accent) but its own stylesheet: the docs are generated into public/ and
+ * never go through the Vite bundle, so they cannot share styles.css.
+ */
+:root {
+  --forg-blue: #0000ff;
+  --forg-blue-deep: #0052ff;
+  --forg-ink: #171717;
+  --forg-muted: #6c6e6c;
+  --forg-paper: #ffffff;
+  --forg-line: rgba(23, 23, 23, 0.12);
+  --forg-wash: #f7f7f8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--forg-paper);
+  color: var(--forg-ink);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--forg-blue); }
+a:hover { color: var(--forg-blue-deep); }
+
+/* ------------------------------------------------------------------ chrome */
+
+.docs-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--forg-line);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(10px);
+}
+
+.docs-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--forg-ink);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.docs-brand img { width: 26px; height: 26px; }
+
+.docs-top-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.docs-top-right a { text-decoration: none; }
+.docs-top-right .docs-home { color: var(--forg-muted); }
+.docs-top-right .docs-home:hover { color: var(--forg-blue); }
+
+.docs-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 255, 0.07);
+  color: var(--forg-blue);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ layout */
+
+.docs-shell {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  gap: 48px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+}
+
+.docs-nav { position: sticky; top: 86px; align-self: start; }
+
+.docs-nav-title {
+  margin: 0 0 12px;
+  color: var(--forg-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.docs-nav ol { margin: 0; padding: 0; list-style: none; }
+
+.docs-nav a {
+  display: block;
+  padding: 7px 12px;
+  border-left: 2px solid transparent;
+  border-radius: 0 7px 7px 0;
+  color: var(--forg-muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.docs-nav a:hover { background: var(--forg-wash); color: var(--forg-ink); }
+
+.docs-nav a[aria-current="page"] {
+  border-left-color: var(--forg-blue);
+  background: var(--forg-wash);
+  color: var(--forg-ink);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------------- content */
+
+.docs-main { min-width: 0; }
+
+.docs-main h1 {
+  margin: 0 0 28px;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.docs-main h2 {
+  margin: 44px 0 14px;
+  padding-top: 22px;
+  border-top: 1px solid var(--forg-line);
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.docs-main h3 {
+  margin: 30px 0 10px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* the intro page leads with an h3 subtitle straight under the h1 */
+.docs-main h1 + h3 {
+  margin-top: -18px;
+  color: var(--forg-muted);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.docs-main p { margin: 0 0 16px; }
+.docs-main ul, .docs-main ol { margin: 0 0 16px; padding-left: 22px; }
+.docs-main li { margin-bottom: 7px; }
+.docs-main strong { font-weight: 700; }
+
+.docs-main blockquote {
+  margin: 22px 0;
+  padding: 14px 18px;
+  border-left: 3px solid var(--forg-blue);
+  border-radius: 0 10px 10px 0;
+  background: var(--forg-wash);
+  color: var(--forg-ink);
+}
+
+.docs-main blockquote p:last-child { margin-bottom: 0; }
+
+.docs-main code {
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--forg-wash);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.87em;
+}
+
+.docs-main pre {
+  margin: 0 0 20px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--forg-line);
+  border-radius: 12px;
+  background: var(--forg-wash);
+  line-height: 1.55;
+}
+
+.docs-main pre code { padding: 0; background: none; font-size: 13px; }
+
+.docs-table-wrap { overflow-x: auto; margin: 0 0 22px; }
+
+.docs-main table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.docs-main th, .docs-main td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--forg-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.docs-main th {
+  border-bottom-color: var(--forg-ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.docs-main tbody tr:last-child td { border-bottom: 0; }
+
+/* -------------------------------------------------------------------- prev */
+
+.docs-pager {
+  display: flex;
+  gap: 14px;
+  margin-top: 56px;
+  padding-top: 26px;
+  border-top: 1px solid var(--forg-line);
+}
+
+.docs-pager a {
+  flex: 1;
+  padding: 14px 18px;
+  border: 1px solid var(--forg-line);
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.docs-pager a:hover { border-color: var(--forg-blue); }
+.docs-pager .docs-pager-next { text-align: right; }
+
+.docs-pager span {
+  display: block;
+  color: var(--forg-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.docs-pager strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--forg-ink);
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ mobile */
+
+@media (max-width: 899px) {
+  .docs-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 24px 18px 72px;
+  }
+
+  .docs-nav {
+    position: static;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--forg-line);
+  }
+
+  .docs-nav ol {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .docs-nav li { flex: none; }
+
+  .docs-nav a {
+    border: 1px solid var(--forg-line);
+    border-left-width: 1px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .docs-nav a[aria-current="page"] { border-color: var(--forg-blue); }
+
+  .docs-main h1 { font-size: 30px; }
+  .docs-main h2 { font-size: 20px; }
+  .docs-pager { flex-direction: column; }
+  .docs-pager .docs-pager-next { text-align: left; }
+}

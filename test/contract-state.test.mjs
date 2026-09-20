@@ -78,7 +78,6 @@ test("unconfigured links stay empty so the page can mark them inert", () => {
 
   assert.equal(targets.docs, "https://docs.example");
   assert.equal(targets.dapp, "");
-  assert.equal(targets.x, "");
   assert.equal(targets.explorer, "");
 });
 

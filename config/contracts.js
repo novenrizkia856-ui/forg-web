@@ -52,10 +52,11 @@ window.CONTRACT_CONFIG = {
 
   /* Optional outbound links. Empty values leave the link inert. */
   links: {
-    /* Optional standalone dapp. Empty uses the integrated wallet experience. */
+    /* Optional standalone dapp. Empty uses the built in registry panel. */
     dapp: "",
-    docs: "",
-    x: "",
+
+    /* The docs site. Built from docs/ into /docs by scripts/build-docs.mjs. */
+    docs: "/docs/",
   },
 
   /**
