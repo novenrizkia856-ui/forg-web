@@ -1,0 +1,282 @@
+/*
+ * FORG layer on top of the exported layout.
+ *
+ * Palette follows base.org: white page, near black text, Base blue accent.
+ * The framer design tokens below are the ones the export uses for accent and
+ * ink, so overriding them recolours the whole page in one place.
+ */
+:root {
+  --forg-blue: #0000ff;
+  --forg-blue-deep: #0052ff;
+  --forg-blue-soft: #9ab8ff;
+  --forg-ink: #171717;
+  --forg-muted: #6c6e6c;
+  --forg-paper: #ffffff;
+  --forg-line: rgba(23, 23, 23, 0.12);
+
+  --forg-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --forg-ease-block: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+body {
+  /* accent */
+  --token-5d674f70-2c96-4eed-8a56-f7150aa84694: var(--forg-blue) !important;
+  /* ink */
+  --token-028fb88c-7c98-4a1d-b00f-a4abed8e2dda: var(--forg-ink) !important;
+  background: var(--forg-paper) !important;
+}
+
+html { scroll-behavior: smooth; }
+
+/* the accent button is blue now, so its label has to flip to white */
+.framer-jdx62u .framer-text,
+.framer-x4v40l .framer-text { color: #fff !important; }
+.framer-10ax8g4 .framer-text { color: var(--forg-ink) !important; }
+
+/* ------------------------------------------------- contract address pill */
+
+.forg-ca {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 26px auto 0;
+  padding: 7px 7px 7px 16px;
+  border: 1px solid var(--forg-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  color: var(--forg-ink);
+  font-family: Inter, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.forg-ca-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--forg-blue);
+  box-shadow: 0 0 0 4px rgba(0, 0, 255, 0.12);
+}
+
+.forg-ca-label { opacity: 0.5; }
+
+.forg-ca-address {
+  color: var(--forg-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-transform: none;
+}
+
+.forg-ca-address:not(.is-idle):hover { color: var(--forg-blue); }
+.forg-ca-address.is-idle { pointer-events: none; opacity: 0.55; }
+
+.forg-ca-network {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 255, 0.07);
+  color: var(--forg-blue);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.forg-ca button {
+  height: 30px;
+  min-width: 30px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--forg-blue);
+  color: #fff;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: opacity 180ms ease, background 180ms ease;
+}
+
+.forg-ca button:disabled { opacity: 0.32; cursor: not-allowed; }
+.forg-ca button:not(:disabled) { cursor: pointer; }
+.forg-ca button:not(:disabled):hover { background: var(--forg-blue-deep); }
+.forg-ca button svg { width: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+
+/* the connect button reads as secondary next to Copy, until the chain is wrong */
+.forg-ca-connect {
+  background: transparent !important;
+  border: 1px solid var(--forg-line) !important;
+  color: var(--forg-ink) !important;
+}
+
+.forg-ca-connect:not(:disabled):hover {
+  border-color: var(--forg-blue) !important;
+  color: var(--forg-blue) !important;
+}
+
+.forg-ca-connect.is-wrong-chain {
+  border-color: transparent !important;
+  background: #b2500f !important;
+  color: #fff !important;
+}
+
+.forg-ca-connect.is-wrong-chain:not(:disabled):hover { background: #8f3f0b !important; }
+
+/* -------------------------------------------------------------------- brand */
+
+.forg-brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  text-decoration: none;
+}
+
+.forg-logo-mark { display: inline-flex; align-items: center; width: 28px; height: 28px; }
+.forg-logo-mark svg { width: 100%; height: 100%; fill: var(--forg-blue); }
+
+.forg-logo-name {
+  display: inline-flex;
+  align-items: center;
+  color: var(--forg-ink);
+  font-family: Inter, Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+footer .forg-brand .forg-logo-mark { width: 34px; height: 34px; }
+footer .forg-brand .forg-logo-name { font-size: 22px; }
+
+.forg-wordmark { display: block; width: 100%; height: 100%; }
+
+/* the docs link is a clone of the other nav links */
+.framer-docs-container { flex: none; width: auto; height: auto; position: relative; }
+
+/* a link with nothing configured yet stays visible but inert */
+[data-forg-link].is-idle { pointer-events: none; opacity: 0.45; }
+
+/* --------------------------------------------------------------- reveals
+
+   Start values are the ones the reference page sets inline; main.js adds
+   .forg-in when the block reaches the viewport.                            */
+
+[data-forg-anim] { will-change: transform, opacity; }
+
+[data-forg-anim="block"],
+[data-forg-anim="card"],
+[data-forg-anim="rise"] { opacity: 0; }
+
+[data-forg-anim="block"] { transform: translateY(40px); }
+[data-forg-anim="card"] { transform: translateY(80px); }
+[data-forg-anim="rise"] { transform: translateX(-50%) translateY(180px); }
+
+[data-forg-anim="text"] {
+  opacity: 0.001;
+  filter: blur(10px);
+  transform: translateY(20px);
+}
+
+[data-forg-anim="text"][data-forg-near] { transform: translateY(10px); }
+
+[data-forg-anim="words"] .forg-word {
+  display: inline-block;
+  opacity: 0.001;
+  filter: blur(10px);
+  transform: translateY(20px);
+}
+
+[data-forg-anim="words"][data-forg-near] .forg-word { transform: translateY(10px); }
+
+[data-forg-anim].forg-in {
+  animation: forgRise 1100ms var(--forg-ease-block) forwards;
+}
+
+[data-forg-anim="rise"].forg-in { animation-name: forgRiseCentred; }
+
+[data-forg-anim="card"].forg-in {
+  animation-delay: calc(var(--card-index, 0) * 100ms);
+}
+
+[data-forg-anim="text"].forg-in {
+  animation: forgText 620ms var(--forg-ease) 120ms forwards;
+}
+
+[data-forg-anim="words"].forg-in { animation: none; }
+
+[data-forg-anim="words"].forg-in .forg-word {
+  animation: forgText 600ms var(--forg-ease) forwards;
+  animation-delay: calc(var(--word-index, 0) * 50ms + 60ms);
+}
+
+@keyframes forgRise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes forgRiseCentred {
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes forgText {
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------------ ticker */
+
+.forg-ticker-track { display: flex; will-change: transform; }
+
+/* ------------------------------------------------------------------ mobile
+
+   The export only carries its desktop navigation and footer, so below the
+   tablet breakpoint the bar keeps the brand and the call to action, and the
+   footer columns stack instead of squeezing to one word per line.          */
+
+@media (max-width: 809px) {
+  nav .framer-1uajkka { display: none !important; }
+
+  footer.framer-15meegh { padding: 72px 24px 300px !important; }
+  footer .framer-1o2fspx { align-items: flex-start !important; }
+  footer .framer-od1eas { flex-direction: column !important; align-items: flex-start !important; gap: 44px !important; }
+  footer .framer-pxalad, footer .framer-accspl { width: 100% !important; }
+  footer .framer-accspl { gap: 48px !important; }
+  footer .framer-q571ww { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+}
+
+@media (max-width: 767px) {
+  .forg-ca { gap: 8px; padding-left: 12px; font-size: 10px; }
+  .forg-ca-network { display: none; }
+  .forg-ca button { min-width: 30px; padding: 0; }
+  .forg-ca button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* Copy keeps its icon when its label is clipped, but Connect is text only,
+     so clipping the label would leave an empty pill. Selector has to outrank
+     `.forg-ca button span` above, hence the button tag plus the class. */
+  .forg-ca button.forg-ca-connect { padding: 0 10px; }
+  .forg-ca button.forg-ca-connect span {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  [data-forg-anim],
+  [data-forg-anim] .forg-word {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  [data-forg-anim="rise"] { transform: translateX(-50%) !important; }
+}
