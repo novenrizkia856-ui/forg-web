@@ -98,7 +98,11 @@ window.CONTRACT_CONFIG = {
   explorerUrl: "https://explorer.rhchain.example",
   forgTokenAddress: "",
   forgCoreAddress: "0x...",
-  links: { docs: "https://docs.forg.example", x: "https://x.com/forg" },
+  links: {
+    dapp: "",
+    docs: "https://docs.forg.example",
+    x: "https://x.com/forg",
+  },
   reads: [],
 };
 ```
@@ -119,6 +123,9 @@ The built site keeps this file unbundled at `dist/config/contracts.js`, so a dep
 can be wired up by editing that one file, with no rebuild.
 
 The contract address sits in the hero, directly under the sub header.
+
+Leave `links.dapp` empty to use the integrated wallet experience. Add the
+standalone dapp URL later and both Launch dapp buttons will open it automatically.
 
 ### 2. Optional: live numbers from the contract
 

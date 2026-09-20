@@ -52,6 +52,8 @@ window.CONTRACT_CONFIG = {
 
   /* Optional outbound links. Empty values leave the link inert. */
   links: {
+    /* Optional standalone dapp. Empty uses the integrated wallet experience. */
+    dapp: "",
     docs: "",
     x: "",
   },

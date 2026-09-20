@@ -77,6 +77,13 @@ test("unconfigured links stay empty so the page can mark them inert", () => {
   const targets = getLinkTargets({ links: { docs: "https://docs.example" } });
 
   assert.equal(targets.docs, "https://docs.example");
+  assert.equal(targets.dapp, "");
   assert.equal(targets.x, "");
   assert.equal(targets.explorer, "");
+});
+
+test("a configured dapp becomes an outbound target", () => {
+  const targets = getLinkTargets({ links: { dapp: "https://app.example" } });
+
+  assert.equal(targets.dapp, "https://app.example");
 });

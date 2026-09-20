@@ -11,6 +11,7 @@ import { startReveals, startTickers } from "./lib/reveal.js";
 import { canConnect, createWalletController, shortenAddress } from "./lib/wallet.js";
 
 const config = window.CONTRACT_CONFIG || {};
+const wallet = canConnect(config) ? createWalletController(config) : null;
 
 function fillContractBar() {
   const bar = document.querySelector("[data-forg-contract-bar]");
@@ -60,7 +61,7 @@ function fillContractBar() {
  */
 function fillWalletButton() {
   const bar = document.querySelector("[data-forg-contract-bar]");
-  if (!bar || !canConnect(config)) return;
+  if (!bar || !wallet) return;
 
   const button = document.createElement("button");
   button.type = "button";
@@ -71,7 +72,6 @@ function fillWalletButton() {
   button.append(label);
   bar.append(button);
 
-  const wallet = createWalletController(config);
   const networkLabel = (config.network || "").trim() || "the FORG chain";
 
   wallet.subscribe((state) => {
@@ -108,7 +108,9 @@ function wireLinks() {
   const targets = getLinkTargets(config);
 
   document.querySelectorAll("[data-forg-link]").forEach((link) => {
-    const href = targets[link.dataset.forgLink];
+    const key = link.dataset.forgLink;
+    const href = targets[key];
+    if (key === "dapp" && !href && wallet) return;
     if (!href) {
       /* the export sets opacity inline on these anchors, so dim them the
          same way rather than from the stylesheet */
@@ -127,6 +129,57 @@ function wireLinks() {
     link.style.removeProperty("pointer-events");
     link.removeAttribute("aria-disabled");
     link.removeAttribute("tabindex");
+  });
+}
+
+function setDappLabel(link, label) {
+  const labels = link.querySelectorAll("p");
+  if (labels.length) labels.forEach((node) => { node.textContent = label; });
+  else link.textContent = label;
+  link.setAttribute("aria-label", label);
+}
+
+/**
+ * Make the dapp impossible to miss.
+ *
+ * A configured standalone URL opens normally. Until that exists, the landing
+ * page itself is the dapp and these launchers open the integrated wallet flow.
+ */
+function wireDappLaunchers() {
+  const launchers = document.querySelectorAll('[data-forg-link="dapp"]');
+  if (!launchers.length) return;
+
+  const dappUrl = getLinkTargets(config).dapp;
+  if (dappUrl || !wallet) return;
+
+  launchers.forEach((link) => {
+    link.classList.remove("is-idle");
+    link.style.removeProperty("opacity");
+    link.style.removeProperty("pointer-events");
+    link.removeAttribute("aria-disabled");
+    link.removeAttribute("tabindex");
+
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const state = wallet.getState();
+      if (state.status === "connecting") return;
+      if (state.status !== "connected") return void wallet.connect();
+      if (!wallet.isOnTargetChain()) return void wallet.switchChain();
+      document.querySelector("[data-forg-contract-bar]")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  });
+
+  wallet.subscribe((state) => {
+    const connected = state.status === "connected" && state.address;
+    const wrongChain = connected && !wallet.isOnTargetChain();
+    let label = "Launch dapp";
+    if (state.status === "connecting") label = "Opening dapp";
+    else if (wrongChain) label = "Switch network";
+    else if (connected) label = "Dapp connected";
+    launchers.forEach((link) => setDappLabel(link, label));
   });
 }
 
@@ -151,6 +204,7 @@ async function fillLiveReads() {
 fillContractBar();
 fillWalletButton();
 wireLinks();
+wireDappLaunchers();
 fillLiveReads();
 startReveals();
 startTickers();
