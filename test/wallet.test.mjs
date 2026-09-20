@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { toHexChainId, shortenAddress, buildAddChainParams, canConnect } from "../lib/wallet.js";
+import {
+  toHexChainId,
+  shortenAddress,
+  buildAddChainParams,
+  canConnect,
+  createWalletController,
+} from "../lib/wallet.js";
 
 const ADDRESS = "0x1234567890abcdef1234567890abcdef1234abcd";
 
@@ -64,4 +70,113 @@ test("the connect button only offers itself when it can actually work", () => {
   assert.equal(canConnect({ ...RH, walletConnectProjectId: "" }), false);
   assert.equal(canConnect({ ...RH, chainId: 0 }), false);
   assert.equal(canConnect({}), false);
+});
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A stand in for window.ethereum: enough of EIP 1193 to drive the controller,
+ * plus a count of the handlers still attached to it.
+ */
+function fakeInjected({ accounts = [ADDRESS], chainId = "0x1237", failWith = null } = {}) {
+  const handlers = new Map();
+  return {
+    attached: () => [...handlers.values()].reduce((total, fns) => total + fns.length, 0),
+    on(event, fn) {
+      handlers.set(event, [...(handlers.get(event) || []), fn]);
+    },
+    removeListener(event, fn) {
+      handlers.set(event, (handlers.get(event) || []).filter((entry) => entry !== fn));
+    },
+    async request({ method }) {
+      if (method === "eth_requestAccounts") {
+        if (failWith) throw failWith;
+        return accounts;
+      }
+      if (method === "eth_chainId") return chainId;
+      return null;
+    },
+  };
+}
+
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+test("reconnecting does not stack listeners on the injected provider", async () => {
+  const injected = fakeInjected();
+  globalThis.ethereum = injected;
+  const wallet = createWalletController(RH);
+
+  for (let i = 0; i < 4; i += 1) {
+    await wallet.connect();
+    await settle();
+    assert.equal(injected.attached(), 3, "one handler per event while connected");
+    await wallet.disconnect();
+    await settle();
+    assert.equal(injected.attached(), 0, "handlers come off again on disconnect");
+  }
+
+  delete globalThis.ethereum;
+});
+
+test("a wallet prompt the user closes is not reported as an error", async () => {
+  const dismissals = [
+    Object.assign(new Error("User rejected the request."), { code: 4001 }),
+    // what @walletconnect/ethereum-provider throws when its QR modal is closed
+    new Error("Connection request reset. Please try again."),
+  ];
+
+  for (const dismissal of dismissals) {
+    globalThis.ethereum = fakeInjected({ failWith: dismissal });
+    const wallet = createWalletController(RH);
+    await wallet.connect();
+    await settle();
+
+    assert.deepEqual(wallet.getState(), {
+      status: "idle",
+      address: "",
+      chainId: 0,
+      transport: "",
+      error: "",
+    });
+  }
+
+  delete globalThis.ethereum;
+});
+
+test("a connection that genuinely fails keeps its message", async () => {
+  globalThis.ethereum = fakeInjected({ failWith: new Error("wallet is locked") });
+  const wallet = createWalletController(RH);
+  await wallet.connect();
+  await settle();
+
+  assert.equal(wallet.getState().status, "idle");
+  assert.equal(wallet.getState().error, "wallet is locked");
+
+  delete globalThis.ethereum;
+});
+
+test("the controller reports the connected account and chain", async () => {
+  globalThis.ethereum = fakeInjected();
+  const wallet = createWalletController(RH);
+  await wallet.connect();
+  await settle();
+
+  assert.equal(wallet.getState().status, "connected");
+  assert.equal(wallet.getState().address, ADDRESS);
+  assert.equal(wallet.getState().chainId, 4663);
+  assert.equal(wallet.isOnTargetChain(), true);
+
+  delete globalThis.ethereum;
+});
+
+test("a wallet left on another chain is reported as off target", async () => {
+  globalThis.ethereum = fakeInjected({ chainId: "0x1" });
+  const wallet = createWalletController(RH);
+  await wallet.connect();
+  await settle();
+
+  assert.equal(wallet.getState().status, "connected");
+  assert.equal(wallet.isOnTargetChain(), false);
+
+  delete globalThis.ethereum;
 });
