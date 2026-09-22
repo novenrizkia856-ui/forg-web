@@ -56,7 +56,7 @@ a:hover { color: var(--forg-blue-deep); }
   text-decoration: none;
 }
 
-.docs-brand img { width: 26px; height: 26px; }
+.docs-brand img { display: block; width: auto; height: 28px; }
 
 .docs-top-right {
   display: flex;

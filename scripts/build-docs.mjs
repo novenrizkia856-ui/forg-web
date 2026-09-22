@@ -104,12 +104,13 @@ function render(entry, index, entries) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escape(title)}</title>
 <meta name="description" content="${escape(`${TAGLINE} for Stock Tokens. ${heading}.`)}">
-<link rel="icon" href="/mark.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="docs.css">
 </head>
 <body>
 <header class="docs-top">
-  <a class="docs-brand" href="/"><img src="/mark.svg" alt="">${SITE_NAME}</a>
+  <a class="docs-brand" href="/"><img src="/brand/forg-logo.png" alt="${SITE_NAME}" width="480" height="116"></a>
   <div class="docs-top-right">
     <span class="docs-tag">Docs</span>
     <a class="docs-home" href="/">Back to site</a>

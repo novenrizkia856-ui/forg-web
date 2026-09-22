@@ -140,21 +140,15 @@ html { scroll-behavior: smooth; }
   text-decoration: none;
 }
 
-.forg-logo-mark { display: inline-flex; align-items: center; width: 28px; height: 28px; }
-.forg-logo-mark svg { width: 100%; height: 100%; fill: var(--forg-blue); }
+/* the official logo file, mark and wordmark together (public/brand) */
+.forg-logo { display: block; width: auto; height: 30px; }
 
-.forg-logo-name {
-  display: inline-flex;
-  align-items: center;
-  color: var(--forg-ink);
-  font-family: Inter, Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+footer .forg-brand .forg-logo { height: 40px; }
+
+@media (max-width: 809.98px) {
+  .forg-logo { height: 26px; }
+  footer .forg-brand .forg-logo { height: 34px; }
 }
-
-footer .forg-brand .forg-logo-mark { width: 34px; height: 34px; }
-footer .forg-brand .forg-logo-name { font-size: 22px; }
 
 .forg-wordmark { display: block; width: 100%; height: 100%; }
 

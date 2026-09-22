@@ -17,24 +17,27 @@ SRC = "reference-assets"
 OUT = "brand-assets"
 os.makedirs(OUT, exist_ok=True)
 
-SS = 8  # supersampling for the drawn mark
+# the official mark, one flat colour, recoloured per use (brand-assets/logo)
+MARK = Image.open("brand-assets/logo/forg-mark-mono.png").convert("RGBA")
+MARK = MARK.crop(MARK.getchannel("A").getbbox()).getchannel("A")
 
-# FORG mark in a 28 x 28 local box, taken from mark.svg
-STEM = [(0, 0), (26, 0), (26, 7), (7, 7), (7, 12), (22, 12), (22, 19), (7, 19), (7, 26), (0, 26)]
-DOT = (24, 24, 4)
+# the reference glyph is square and the FORG mark is wide, so the mark is
+# allowed a little past the glyph box to carry the same visual weight
+MARK_SPREAD = 1.35
 
 BRAND_ORANGE = (255, 79, 1)
 
 
-def mark_image(size, colour):
-    big = size * SS
-    img = Image.new("RGBA", (big, big), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    k = big / 28.0
-    d.polygon([(x * k, y * k) for x, y in STEM], fill=colour)
-    cx, cy, r = DOT
-    d.ellipse([(cx - r) * k, (cy - r) * k, (cx + r) * k, (cy + r) * k], fill=colour)
-    return img.resize((size, size), Image.LANCZOS)
+def mark_image(size, colour, spread=MARK_SPREAD):
+    """The FORG mark centred in a `size` square, filled with `colour`."""
+    width = round(size * spread)
+    height = round(width * MARK.height / MARK.width)
+    alpha = MARK.resize((width, height), Image.LANCZOS)
+    fill = Image.new("RGBA", (width, height), colour[:3] + (0,))
+    fill.putalpha(Image.eval(alpha, lambda a: a * colour[3] // 255))
+    img = Image.new("RGBA", (max(size, width), max(size, height)), (0, 0, 0, 0))
+    img.alpha_composite(fill, ((img.width - width) // 2, (img.height - height) // 2))
+    return img
 
 
 def orange_mask(arr, tol=(190, 140, 110)):
@@ -69,7 +72,7 @@ def replace_mark(im, anchor, window=110, pad=3):
 
     size = min(bx1 - bx0 + 1, by1 - by0 + 1)
     mark = mark_image(size, colour)
-    im.alpha_composite(mark, (int((bx0 + bx1) / 2 - size / 2), int((by0 + by1) / 2 - size / 2)))
+    im.alpha_composite(mark, (int((bx0 + bx1) / 2 - mark.width / 2), int((by0 + by1) / 2 - mark.height / 2)))
     return im
 
 
@@ -154,9 +157,12 @@ def rebuild_avatar_stack(im):
     background = tuple(int(v) for v in np.median(arr[200:230, 700:850].reshape(-1, 4), axis=0))
     draw = ImageDraw.Draw(im)
     draw.rectangle([872, 217, 1077, 322], fill=background)
-    for cx in (925, 981, 1037):
+    # each avatar is covered from the right by the next one, so the mark sits
+    # in the visible crescent, except on the last avatar which shows whole
+    for cx, shift in ((925, 14), (981, 14), (1037, 0)):
         draw.ellipse([cx - 43, 227, cx + 43, 313], fill=BRAND_ORANGE + (255,))
-        im.alpha_composite(mark_image(46, (255, 255, 255, 255)), (cx - 23, 247))
+        mark = mark_image(46, (255, 255, 255, 255), spread=1.0)
+        im.alpha_composite(mark, (cx - shift - mark.width // 2, 270 - mark.height // 2))
     return im
 
 
@@ -181,7 +187,8 @@ process("2240x2700_e79db0a87f.png", hue_range=(8, 60), as_webp=True, quality=92)
 # event ticker avatar: the whole image is the glyph, so it is rebuilt
 avatar = Image.new("RGBA", (176, 176), (0, 0, 0, 0))
 ImageDraw.Draw(avatar).ellipse([0, 0, 175, 175], fill=BRAND_ORANGE + (255,))
-avatar.alpha_composite(mark_image(96, (255, 255, 255, 255)), (40, 40))
+mark = mark_image(96, (255, 255, 255, 255))
+avatar.alpha_composite(mark, (88 - mark.width // 2, 88 - mark.height // 2))
 avatar = to_base_blue(avatar)
 avatar.save(os.path.join(OUT, "event-avatar.png"), "PNG", optimize=True)
 print("event-avatar.png")

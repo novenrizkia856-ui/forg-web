@@ -15,11 +15,13 @@ authorized issuer executes. FORG never holds user funds.
 | `main.js` | Connects the page to `config/contracts.js`. No copy, no layout. |
 | `config/contracts.js` | The only file to edit after a deployment. Stays outside the bundle. |
 | `lib/` | Pure modules: keccak, ABI encode and decode, contract state, JSON RPC reads, wallet. |
-| `public/` | Files copied to the site root: `assets/` (hashed images and fonts), `og.png`. |
+| `public/` | Files copied to the site root: `assets/` (hashed images and fonts), `brand/`, favicons, `og.png`. |
 | `abi/ForgCore.json` | The deployed contract ABI, exported from the contracts repo. |
 | `docs/` | The documentation, in markdown. `SUMMARY.md` sets the order and what gets published. |
 | `scripts/build-docs.mjs` | Renders `docs/` into `public/docs`. Runs from `npm run dev` and `npm run build`. |
 | `brand-assets/` | Artwork carrying the FORG mark. Source for the files in `public/assets/`. |
+| `brand-assets/logo/` | The official FORG logo pack, as delivered. Source for every logo on the site. |
+| `scripts/build-brand.py` | Builds the header logo, favicons, wallet icon and `og.png` from the logo pack. |
 | `reference-assets/` | The original artwork, kept only for diffing. Not shipped. |
 | `scripts/rebrand-images.py` | Regenerates `brand-assets/` from `reference-assets/`. Needs Pillow and numpy. |
 | `lib/reveal.js` | Section reveals and the event ticker, rebuilt from the reference motion. |
@@ -38,6 +40,22 @@ filter. `scripts/rebrand-images.py` moves only the orange brand hue onto blue,
 so the red, green and blue chart lines inside the dashboard mockups survive
 untouched. It also swaps the reference brand glyph for the FORG mark at the
 same position and size.
+
+### Logo
+
+Every logo on the site comes from the official pack in `brand-assets/logo/`:
+
+| File | Where it goes |
+|---|---|
+| `forg-logo-on-light.png` | Header, footer and docs header, as `public/brand/forg-logo.png` |
+| `forg-logo-on-dark.png` | The social banner `og.png`, on black |
+| `forg-mark.png` | `favicon.png` |
+| `forg-mark-banner.jpg` | `apple-touch-icon.png` and the wallet icon `brand/forg-icon-512.png` |
+| `forg-mark-mono.png` | The mask `rebrand-images.py` fills to draw the mark inside the artwork |
+
+The pack JPGs are flattened copies of the PNGs, kept for anyone who needs them.
+Rebuild with `python scripts/build-brand.py`. If the mark changes, also run
+`scripts/rebrand-images.py` and republish the changed files under `public/assets/`.
 
 ### Motion
 
