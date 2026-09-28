@@ -6,26 +6,24 @@ Sources live in brand-assets/logo/, exactly as delivered:
   forg-mark.png            the mark alone, lime gradient
   forg-mark-mono.png       the mark alone, one flat colour (used as a mask)
   forg-mark-banner.jpg     the mark on black with the lime corner glow
+  forg-x-banner.png        the X header banner, 5000 x 1667
 
 Writes, into public/:
   brand/forg-logo.png      header and footer logo
   brand/forg-icon-512.png  wallet metadata and any square app icon
   favicon.png              browser tab
   apple-touch-icon.png     home screen
-  og.png                   social banner, 1200 x 630
+  og.png                   social banner, 1200 x 630, cut from the X banner
 
 Run from the project root:  python scripts/build-brand.py
-Needs Pillow and numpy.
+Needs Pillow.
 """
 import os
-import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image
 
 SRC = "brand-assets/logo"
 OUT = "public"
 os.makedirs(os.path.join(OUT, "brand"), exist_ok=True)
-
-LIME = (204, 255, 1)
 
 
 def load(name):
@@ -57,27 +55,6 @@ def save(im, path):
     print(f"  wrote {path} ({os.path.getsize(full) // 1024} kB)")
 
 
-def glow(size, centre, radius, colour, strength):
-    """A soft lime corner light, the same move the banner artwork makes."""
-    w, h = size
-    ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
-    d = np.sqrt((xs - centre[0]) ** 2 + (ys - centre[1]) ** 2) / radius
-    a = np.clip(1 - d, 0, 1) ** 2.2 * strength
-    layer = np.zeros((h, w, 4), np.float32)
-    layer[..., :3] = colour
-    layer[..., 3] = a * 255
-    return Image.fromarray(layer.astype(np.uint8), "RGBA")
-
-
-def font(bold, size):
-    for name in (("segoeuib.ttf", "arialbd.ttf") if bold else ("segoeui.ttf", "arial.ttf")):
-        for folder in ("C:/Windows/Fonts", "/usr/share/fonts/truetype/msttcorefonts", "/Library/Fonts"):
-            path = os.path.join(folder, name)
-            if os.path.exists(path):
-                return ImageFont.truetype(path, size)
-    return ImageFont.load_default(size)
-
-
 # header and footer: shown at 30 to 40 px tall, so 480 wide covers 3x screens
 save(fit_width(trimmed("forg-logo-on-light.png"), 480), "brand/forg-logo.png")
 
@@ -90,18 +67,10 @@ banner = Image.open(os.path.join(SRC, "forg-mark-banner.jpg")).convert("RGBA")
 save(banner.resize((180, 180), Image.LANCZOS), "apple-touch-icon.png")
 save(banner.resize((512, 512), Image.LANCZOS), "brand/forg-icon-512.png")
 
-# social banner: the dark logo on black, lit from two corners like the banner tile
+# social banner: the X banner cut to 1200 x 630. The logo and tagline sit on
+# the right, so the cut keeps the full height and drops the left of the waves.
 W, H = 1200, 630
-og = Image.new("RGBA", (W, H), (5, 5, 5, 255))
-og.alpha_composite(glow((W, H), (-80, -120), 620, LIME, 0.85))
-og.alpha_composite(glow((W, H), (W + 60, H + 140), 700, LIME, 0.95))
-
-logo = fit_width(trimmed("forg-logo-on-dark.png"), 300)
-og.alpha_composite(logo, (96, 118))
-
-draw = ImageDraw.Draw(og)
-draw.text((92, 262), "Stocks change.", font=font(True, 84), fill=(255, 255, 255, 255))
-draw.text((96, 372), "Your Stock Token should know.", font=font(False, 40), fill=(255, 255, 255, 214))
-draw.text((96, 470), "Corporate action infrastructure for Stock Tokens", font=font(True, 24), fill=(255, 255, 255, 150))
-draw.text((96, 510), "Detect  /  Verify  /  Apply  /  Confirm", font=font(True, 24), fill=(*LIME, 255))
-save(og.convert("RGB").convert("RGBA"), "og.png")
+xb = Image.open(os.path.join(SRC, "forg-x-banner.png")).convert("RGB")
+cut = round(xb.height * W / H)
+og = xb.crop((xb.width - cut, 0, xb.width, xb.height)).resize((W, H), Image.LANCZOS)
+save(og, "og.png")

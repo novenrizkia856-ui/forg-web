@@ -48,10 +48,11 @@ Every logo on the site comes from the official pack in `brand-assets/logo/`:
 | File | Where it goes |
 |---|---|
 | `forg-logo-on-light.png` | Header, footer and docs header, as `public/brand/forg-logo.png` |
-| `forg-logo-on-dark.png` | The social banner `og.png`, on black |
+| `forg-logo-on-dark.png` | Kept for dark surfaces; nothing on the site uses it yet |
 | `forg-mark.png` | `favicon.png` |
 | `forg-mark-banner.jpg` | `apple-touch-icon.png` and the wallet icon `brand/forg-icon-512.png` |
 | `forg-mark-mono.png` | The mask `rebrand-images.py` fills to draw the mark inside the artwork |
+| `forg-x-banner.png` | The X header banner; `og.png` is its right side cut to 1200 x 630 |
 
 The pack JPGs are flattened copies of the PNGs, kept for anyone who needs them.
 Rebuild with `python scripts/build-brand.py`. If the mark changes, also run
