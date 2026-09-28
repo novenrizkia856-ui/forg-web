@@ -4,8 +4,11 @@ Sources live in brand-assets/logo/, exactly as delivered:
   forg-logo-on-light.png   full logo, black wordmark, for white surfaces
   forg-logo-on-dark.png    full logo, white wordmark, for dark surfaces
   forg-mark.png            the mark alone, lime gradient
-  forg-mark-mono.png       the mark alone, one flat colour (used as a mask)
+  forg-mark-mono.png       the mark alone, flat black: the darker option
   forg-mark-banner.jpg     the mark on black with the lime corner glow
+
+The site uses the darker option: the lime gradient clashes with Base blue,
+so the logo and icons are drawn in the black of forg-mark-mono.png.
   forg-x-banner.png        the X header banner, 5000 x 1667
 
 Writes, into public/:
@@ -19,7 +22,7 @@ Run from the project root:  python scripts/build-brand.py
 Needs Pillow.
 """
 import os
-from PIL import Image
+from PIL import Image, ImageDraw
 
 SRC = "brand-assets/logo"
 OUT = "public"
@@ -49,23 +52,38 @@ def square(im, size, pad=0.0):
     return canvas
 
 
+def in_black(im):
+    """The same shape, every pixel in the pack's flat black."""
+    black = Image.new("RGBA", im.size, (0, 0, 0, 255))
+    black.putalpha(im.getchannel("A"))
+    return black
+
+
+def on_tile(im, size, pad, radius):
+    """`im` centred on a white rounded tile, so the black mark reads on dark tabs too."""
+    tile = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    ImageDraw.Draw(tile).rounded_rectangle((0, 0, size - 1, size - 1), round(size * radius), fill=(255, 255, 255, 255))
+    tile.alpha_composite(square(im, size, pad))
+    return tile
+
+
 def save(im, path):
     full = os.path.join(OUT, path)
     im.save(full, "PNG", optimize=True)
     print(f"  wrote {path} ({os.path.getsize(full) // 1024} kB)")
 
 
-# header and footer: shown at 30 to 40 px tall, so 480 wide covers 3x screens
-save(fit_width(trimmed("forg-logo-on-light.png"), 480), "brand/forg-logo.png")
+# header and footer: shown at 30 to 40 px tall, so 480 wide covers 3x screens.
+# The light logo already has the black wordmark; its mark is turned black too.
+save(fit_width(in_black(trimmed("forg-logo-on-light.png")), 480), "brand/forg-logo.png")
 
-# square icons: the gradient mark reads on light and dark tabs alike
-mark = trimmed("forg-mark.png")
-save(square(mark, 64, pad=0.02), "favicon.png")
+# square icons: the black mark on a white tile
+mark = trimmed("forg-mark-mono.png")
+save(on_tile(mark, 64, pad=0.12, radius=0.22), "favicon.png")
 
-# home screen and wallet icons are shown on a tile, so the banner tile is used
-banner = Image.open(os.path.join(SRC, "forg-mark-banner.jpg")).convert("RGBA")
-save(banner.resize((180, 180), Image.LANCZOS), "apple-touch-icon.png")
-save(banner.resize((512, 512), Image.LANCZOS), "brand/forg-icon-512.png")
+# home screen: iOS rounds the corners itself, so the tile is a plain square
+save(on_tile(mark, 180, pad=0.18, radius=0), "apple-touch-icon.png")
+save(on_tile(mark, 512, pad=0.18, radius=0.22), "brand/forg-icon-512.png")
 
 # social banner: the X banner cut to 1200 x 630. The logo and tagline sit on
 # the right, so the cut keeps the full height and drops the left of the waves.
